@@ -1,5 +1,15 @@
 export type ExpenseCategory =
-  'Food' | 'Travel' | 'Shopping' | 'Entertainment' | 'Bills' | 'Savings' | 'Other';
+  | 'Food'
+  | 'Travel'
+  | 'Shopping'
+  | 'Entertainment'
+  | 'Bills'
+  | 'Education'
+  | 'Health'
+  | 'Subscriptions'
+  | 'Emergency'
+  | 'Savings'
+  | 'Other';
 
 export interface Expense {
   id: string;
@@ -7,13 +17,29 @@ export interface Expense {
   cat: ExpenseCategory;
   amt: number;
   day: number;
+  description?: string;
+  date?: string;
   createdAt: number;
 }
+
+export interface IncomeItem {
+  id: string;
+  source: string;
+  amt: number;
+  day: number;
+  date?: string;
+  description?: string;
+  createdAt: number;
+}
+
+export type BillingFrequency = 'monthly' | 'yearly';
 
 export interface Subscription {
   id: string;
   name: string;
   amt: number;
+  frequency?: BillingFrequency;
+  nextPaymentDate?: string;
   active: boolean;
 }
 
@@ -30,6 +56,7 @@ export interface FinanceState {
   reserve: number;
   day: number; // days completed, 0 to 29
   expenses: Expense[];
+  incomes?: IncomeItem[];
   subs: Subscription[];
   goals: SavingsGoal[];
 }
@@ -55,6 +82,8 @@ export interface SurvivalSimulationResult {
 }
 
 export interface CalculationResult {
+  totalIncome: number;
+  totalActualExpenses: number;
   spent: number;
   remaining: number;
   committed: number;
@@ -93,6 +122,8 @@ export interface ScenarioItem {
   name: string;
   amount: number;
   category: ExpenseCategory;
+  isEssential?: boolean;
+  purchaseDate?: string;
 }
 
 export interface ScenarioComparison {
@@ -107,4 +138,6 @@ export type ActiveScreen =
   | 'emergency'
   | 'savings'
   | 'subscriptions'
+  | 'forecast'
+  | 'health'
   | 'insights';

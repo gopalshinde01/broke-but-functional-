@@ -1,15 +1,12 @@
 import type { Expense, ExpenseCategory, FinanceState, Subscription, SavingsGoal } from '../types';
-import { STORAGE_KEY, LEGACY_STORAGE_KEYS, DEMO_MONTH_STATE } from '../constants';
+import {
+  STORAGE_KEY,
+  LEGACY_STORAGE_KEYS,
+  DEMO_MONTH_STATE,
+  EXPENSE_CATEGORIES,
+} from '../constants';
 
-const VALID_CATEGORIES = new Set<ExpenseCategory>([
-  'Food',
-  'Travel',
-  'Shopping',
-  'Entertainment',
-  'Bills',
-  'Savings',
-  'Other',
-]);
+const VALID_CATEGORIES = new Set<ExpenseCategory>(EXPENSE_CATEGORIES);
 
 /**
  * Type guard to check if an unknown value is a valid ExpenseCategory.

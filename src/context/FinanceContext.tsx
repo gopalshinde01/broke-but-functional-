@@ -23,16 +23,43 @@ import { DEMO_MONTH_STATE, INITIAL_BLANK_STATE } from '@/constants';
 export type FinanceAction =
   | {
       type: 'ADD_EXPENSE';
-      payload: { name: string; amt: number; cat: ExpenseCategory; day?: number };
+      payload: {
+        name: string;
+        amt: number;
+        cat: ExpenseCategory;
+        day?: number;
+        description?: string;
+        date?: string;
+      };
+    }
+  | {
+      type: 'EDIT_EXPENSE';
+      payload: {
+        id: string;
+        updates: Partial<Pick<Expense, 'name' | 'amt' | 'cat' | 'day' | 'description' | 'date'>>;
+      };
     }
   | { type: 'DELETE_EXPENSE'; payload: { id: string } }
   | { type: 'RESTORE_EXPENSE'; payload: { expense: Expense } }
+  | {
+      type: 'ADD_INCOME';
+      payload: { source: string; amt: number; day?: number; description?: string };
+    }
+  | { type: 'DELETE_INCOME'; payload: { id: string } }
   | { type: 'ADD_GOAL'; payload: { name: string; target: number; initialSaved?: number } }
   | { type: 'EDIT_GOAL'; payload: { id: string; name: string; target: number; saved?: number } }
   | { type: 'DELETE_GOAL'; payload: { id: string } }
   | { type: 'ADD_SAVINGS'; payload: { goalId: string; amount: number } }
   | { type: 'TOGGLE_SUBSCRIPTION'; payload: { id: string } }
-  | { type: 'ADD_SUBSCRIPTION'; payload: { name: string; amt: number } }
+  | {
+      type: 'ADD_SUBSCRIPTION';
+      payload: {
+        name: string;
+        amt: number;
+        frequency?: 'monthly' | 'yearly';
+        nextPaymentDate?: string;
+      };
+    }
   | { type: 'DELETE_SUBSCRIPTION'; payload: { id: string } }
   | {
       type: 'UPDATE_SETTINGS';
@@ -63,10 +90,38 @@ export function financeReducer(state: FinanceState, action: FinanceAction): Fina
             ? Math.min(30, Math.max(1, Math.round(action.payload.day)))
             : state.day,
         createdAt: Date.now(),
+        description: action.payload.description?.trim().slice(0, 120),
+        date: action.payload.date,
       };
       return {
         ...state,
         expenses: [newExpense, ...state.expenses],
+      };
+    }
+
+    case 'EDIT_EXPENSE': {
+      return {
+        ...state,
+        expenses: state.expenses.map((exp) => {
+          if (exp.id !== action.payload.id) return exp;
+          const u = action.payload.updates;
+          return {
+            ...exp,
+            name: u.name !== undefined ? u.name.trim().slice(0, 60) : exp.name,
+            amt:
+              u.amt !== undefined && Number.isFinite(Number(u.amt)) && Number(u.amt) > 0
+                ? Math.round(Number(u.amt))
+                : exp.amt,
+            cat: u.cat ?? exp.cat,
+            day:
+              u.day !== undefined
+                ? Math.min(30, Math.max(1, Math.round(Number(u.day))))
+                : exp.day,
+            description:
+              u.description !== undefined ? u.description.trim().slice(0, 120) : exp.description,
+            date: u.date ?? exp.date,
+          };
+        }),
       };
     }
 
@@ -81,6 +136,40 @@ export function financeReducer(state: FinanceState, action: FinanceAction): Fina
       return {
         ...state,
         expenses: [action.payload.expense, ...state.expenses],
+      };
+    }
+
+    case 'ADD_INCOME': {
+      const trimmedSource = action.payload.source.trim().slice(0, 60);
+      const numAmt = Number(action.payload.amt);
+      if (!trimmedSource || !Number.isFinite(numAmt) || numAmt <= 0) return state;
+
+      const newIncomeItem = {
+        id: `inc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        source: trimmedSource,
+        amt: Math.round(numAmt),
+        day: action.payload.day ?? state.day,
+        description: action.payload.description?.trim().slice(0, 120),
+        createdAt: Date.now(),
+      };
+
+      const updatedIncomes = [newIncomeItem, ...(state.incomes || [])];
+      const newTotalIncome = updatedIncomes.reduce((sum, item) => sum + item.amt, 0);
+
+      return {
+        ...state,
+        income: newTotalIncome,
+        incomes: updatedIncomes,
+      };
+    }
+
+    case 'DELETE_INCOME': {
+      const updatedIncomes = (state.incomes || []).filter((item) => item.id !== action.payload.id);
+      const newTotalIncome = updatedIncomes.reduce((sum, item) => sum + item.amt, 0);
+      return {
+        ...state,
+        income: newTotalIncome,
+        incomes: updatedIncomes,
       };
     }
 
@@ -176,6 +265,8 @@ export function financeReducer(state: FinanceState, action: FinanceAction): Fina
             id: `sub-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
             name: trimmed,
             amt: Math.round(numAmt),
+            frequency: action.payload.frequency || 'monthly',
+            nextPaymentDate: action.payload.nextPaymentDate,
             active: true,
           },
         ],
@@ -243,14 +334,27 @@ export interface FinanceContextType {
     amt: number;
     cat: ExpenseCategory;
     day?: number;
+    description?: string;
+    date?: string;
   }) => boolean;
+  editExpense: (
+    id: string,
+    updates: Partial<Pick<Expense, 'name' | 'amt' | 'cat' | 'day' | 'description' | 'date'>>
+  ) => boolean;
   deleteExpense: (id: string) => void;
+  addIncome: (source: string, amt: number, day?: number, description?: string) => boolean;
+  deleteIncome: (id: string) => void;
   addGoal: (name: string, target: number, initialSaved?: number) => boolean;
   editGoal: (id: string, name: string, target: number, saved?: number) => void;
   deleteGoal: (id: string) => void;
   addSavings: (goalId: string, amount: number) => boolean;
   toggleSubscription: (id: string) => void;
-  addSubscription: (name: string, amt: number) => boolean;
+  addSubscription: (
+    name: string,
+    amt: number,
+    frequency?: 'monthly' | 'yearly',
+    nextPaymentDate?: string
+  ) => boolean;
   deleteSubscription: (id: string) => void;
   updateSettings: (
     settings: Partial<Pick<FinanceState, 'budget' | 'reserve' | 'day' | 'income'>>
@@ -291,11 +395,29 @@ export function FinanceProvider({ children, initialState }: FinanceProviderProps
 
   // Actions
   const addExpense = useCallback(
-    (expense: { name: string; amt: number; cat: ExpenseCategory; day?: number }) => {
+    (expense: {
+      name: string;
+      amt: number;
+      cat: ExpenseCategory;
+      day?: number;
+      description?: string;
+      date?: string;
+    }) => {
       const trimmed = expense.name.trim();
       const numAmt = Number(expense.amt);
       if (!trimmed || !Number.isFinite(numAmt) || numAmt <= 0) return false;
       dispatch({ type: 'ADD_EXPENSE', payload: expense });
+      return true;
+    },
+    []
+  );
+
+  const editExpense = useCallback(
+    (
+      id: string,
+      updates: Partial<Pick<Expense, 'name' | 'amt' | 'cat' | 'day' | 'description' | 'date'>>
+    ) => {
+      dispatch({ type: 'EDIT_EXPENSE', payload: { id, updates } });
       return true;
     },
     []
@@ -318,6 +440,21 @@ export function FinanceProvider({ children, initialState }: FinanceProviderProps
     setLastDeletedExpense(null);
     return true;
   }, [lastDeletedExpense]);
+
+  const addIncome = useCallback(
+    (source: string, amt: number, day?: number, description?: string) => {
+      const trimmed = source.trim();
+      const numAmt = Number(amt);
+      if (!trimmed || !Number.isFinite(numAmt) || numAmt <= 0) return false;
+      dispatch({ type: 'ADD_INCOME', payload: { source: trimmed, amt: numAmt, day, description } });
+      return true;
+    },
+    []
+  );
+
+  const deleteIncome = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_INCOME', payload: { id } });
+  }, []);
 
   const addGoal = useCallback((name: string, target: number, initialSaved: number = 0) => {
     const trimmed = name.trim();
@@ -346,13 +483,24 @@ export function FinanceProvider({ children, initialState }: FinanceProviderProps
     dispatch({ type: 'TOGGLE_SUBSCRIPTION', payload: { id } });
   }, []);
 
-  const addSubscription = useCallback((name: string, amt: number) => {
-    const trimmed = name.trim();
-    const numAmt = Number(amt);
-    if (!trimmed || !Number.isFinite(numAmt) || numAmt <= 0) return false;
-    dispatch({ type: 'ADD_SUBSCRIPTION', payload: { name, amt: numAmt } });
-    return true;
-  }, []);
+  const addSubscription = useCallback(
+    (
+      name: string,
+      amt: number,
+      frequency: 'monthly' | 'yearly' = 'monthly',
+      nextPaymentDate?: string
+    ) => {
+      const trimmed = name.trim();
+      const numAmt = Number(amt);
+      if (!trimmed || !Number.isFinite(numAmt) || numAmt <= 0) return false;
+      dispatch({
+        type: 'ADD_SUBSCRIPTION',
+        payload: { name: trimmed, amt: numAmt, frequency, nextPaymentDate },
+      });
+      return true;
+    },
+    []
+  );
 
   const deleteSubscription = useCallback((id: string) => {
     dispatch({ type: 'DELETE_SUBSCRIPTION', payload: { id } });
@@ -390,7 +538,10 @@ export function FinanceProvider({ children, initialState }: FinanceProviderProps
       lastDeletedExpense,
       undoDeleteExpense,
       addExpense,
+      editExpense,
       deleteExpense,
+      addIncome,
+      deleteIncome,
       addGoal,
       editGoal,
       deleteGoal,
@@ -411,7 +562,10 @@ export function FinanceProvider({ children, initialState }: FinanceProviderProps
       lastDeletedExpense,
       undoDeleteExpense,
       addExpense,
+      editExpense,
       deleteExpense,
+      addIncome,
+      deleteIncome,
       addGoal,
       editGoal,
       deleteGoal,

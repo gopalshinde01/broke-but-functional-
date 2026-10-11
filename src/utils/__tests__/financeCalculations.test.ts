@@ -228,4 +228,64 @@ describe('financeCalculations pure utils', () => {
       expect(formatINR(-500)).toMatch(/-₹\s?500/);
     });
   });
+
+  describe('Additional income and subscription frequency conversions', () => {
+    it('accurately incorporates additional income: Balance = Starting + Income - Expenses', () => {
+      const state: FinanceState = {
+        budget: 10000,
+        income: 0,
+        reserve: 1500,
+        day: 15,
+        expenses: [{ id: 'e1', name: 'Groceries', cat: 'Food', amt: 2000, day: 5, createdAt: 1 }],
+        incomes: [
+          { id: 'i1', source: 'Tutoring', amt: 1500, day: 10, createdAt: 1 },
+          { id: 'i2', source: 'Stipend', amt: 2000, day: 12, createdAt: 2 },
+        ],
+        subs: [],
+        goals: [],
+      };
+
+      const res = calc(state, 0);
+      expect(res.totalIncome).toBe(3500);
+      expect(res.totalActualExpenses).toBe(2000);
+      // Starting 10,000 + 3,500 - 2,000 = 11,500
+      expect(res.remaining).toBe(11500);
+    });
+
+    it('converts annual subscriptions to monthly-equivalent committed amounts', () => {
+      const state: FinanceState = {
+        ...INITIAL_BLANK_STATE,
+        subs: [
+          { id: 's1', name: 'Annual Software', amt: 1200, frequency: 'yearly', active: true },
+          { id: 's2', name: 'Monthly Music', amt: 199, frequency: 'monthly', active: true },
+          { id: 's3', name: 'Cancelled Gym', amt: 6000, frequency: 'yearly', active: false },
+        ],
+      };
+
+      const res = calc(state, 0);
+      // Annual s1 is 1200 / 12 = 100/mo. Monthly s2 is 199/mo. Cancelled s3 is 0. Total committed = 299.
+      expect(res.committed).toBe(299);
+    });
+
+    it('simulated expense never leaks into actual balance or real ledger', () => {
+      const state: FinanceState = {
+        budget: 10000,
+        income: 0,
+        reserve: 1500,
+        day: 10,
+        expenses: [{ id: 'e1', name: 'Food', cat: 'Food', amt: 1000, day: 2, createdAt: 1 }],
+        subs: [],
+        goals: [],
+      };
+
+      const baseRes = calc(state, 0);
+      const simRes = calc(state, 2500);
+
+      expect(baseRes.remaining).toBe(9000);
+      expect(simRes.remaining).toBe(6500);
+      // Ensure real ledger in state is completely unchanged
+      expect(state.expenses).toHaveLength(1);
+      expect(state.expenses[0]!.amt).toBe(1000);
+    });
+  });
 });

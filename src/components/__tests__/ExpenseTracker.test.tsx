@@ -17,7 +17,7 @@ describe('ExpenseTracker Component', () => {
       />
     );
 
-    const submitBtn = screen.getByRole('button', { name: /Add/i });
+    const submitBtn = screen.getByRole('button', { name: /Add Expense/i });
     fireEvent.click(submitBtn);
 
     expect(onAddExpense).not.toHaveBeenCalled();
@@ -61,18 +61,19 @@ describe('ExpenseTracker Component', () => {
 
     const nameInput = screen.getByLabelText(/Expense Name/i);
     const amountInput = screen.getByLabelText(/Amount/i);
-    const submitBtn = screen.getByRole('button', { name: /Add/i });
+    const submitBtn = screen.getByRole('button', { name: /Add Expense/i });
 
     fireEvent.change(nameInput, { target: { value: 'Books' } });
     fireEvent.change(amountInput, { target: { value: '450' } });
     fireEvent.click(submitBtn);
 
-    expect(onAddExpense).toHaveBeenCalledWith({
-      name: 'Books',
-      amt: 450,
-      cat: 'Food',
-      day: DEMO_MONTH_STATE.day,
-    });
+    expect(onAddExpense).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Books',
+        amt: 450,
+        cat: 'Food',
+      })
+    );
   });
 
   it('triggers delete button', () => {

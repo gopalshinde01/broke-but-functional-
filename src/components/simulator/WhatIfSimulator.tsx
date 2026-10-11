@@ -51,6 +51,9 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
     }
   };
 
+  const [isEssential, setIsEssential] = useState(false);
+  const [purchaseDate, setPurchaseDate] = useState(`Day ${state.day}`);
+
   return (
     <div className="space-y-6">
       {/* Title & Introduction Card */}
@@ -117,6 +120,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
           setSimAmount={setSimAmount}
           simCategory={simCategory}
           setSimCategory={setSimCategory}
+          isEssential={isEssential}
+          setIsEssential={setIsEssential}
+          purchaseDate={purchaseDate}
+          setPurchaseDate={setPurchaseDate}
         />
       </div>
 

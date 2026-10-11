@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Repeat, Plus, AlertCircle } from 'lucide-react';
-import type { FinanceState } from '@/types';
+import type { FinanceState, BillingFrequency } from '@/types';
 import { Button } from '@/components/ui';
 import { SubscriptionMetrics } from './SubscriptionMetrics';
 import { SubscriptionItem } from './SubscriptionItem';
@@ -8,7 +8,7 @@ import { SubscriptionItem } from './SubscriptionItem';
 export interface SubscriptionManagerProps {
   state: FinanceState;
   onToggleSubscription: (id: string) => void;
-  onAddSubscription: (name: string, amt: number) => boolean;
+  onAddSubscription: (name: string, amt: number, frequency?: BillingFrequency, nextPaymentDate?: string) => boolean;
   onDeleteSubscription: (id: string) => void;
 }
 
@@ -20,24 +20,34 @@ export const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [amt, setAmt] = useState('');
+  const [frequency, setFrequency] = useState<BillingFrequency>('monthly');
+  const [nextPaymentDate, setNextPaymentDate] = useState('Day 25');
   const [errorMsg, setErrorMsg] = useState('');
 
   const subscriptions = state.subs || [];
   const safeBudget = Math.max(1, state.budget);
   const daysLeft = Math.max(1, 30 - state.day);
 
+  // Accounting engine: convert annual subscriptions to monthly-equivalent costs
+  const getMonthlyCost = (s: { amt: number; frequency?: BillingFrequency }) =>
+    s.frequency === 'yearly' ? Math.round(s.amt / 12) : s.amt;
+
   const activeMonthlyTotal = subscriptions
     .filter((s) => s.active)
-    .reduce((sum, s) => sum + (Number(s.amt) || 0), 0);
+    .reduce((sum, s) => sum + (getMonthlyCost(s) || 0), 0);
 
-  const activeAnnualTotal = activeMonthlyTotal * 12;
+  const activeAnnualTotal = subscriptions
+    .filter((s) => s.active)
+    .reduce((sum, s) => sum + (s.frequency === 'yearly' ? s.amt : s.amt * 12), 0);
+
   const activeBudgetPct = Math.round((activeMonthlyTotal / safeBudget) * 100);
   const totalDailyDrain = Math.ceil(activeMonthlyTotal / daysLeft);
 
-  const savedMonthly = subscriptions
+  const savedAnnual = subscriptions
     .filter((s) => !s.active)
-    .reduce((sum, s) => sum + (Number(s.amt) || 0), 0);
-  const savedAnnual = savedMonthly * 12;
+    .reduce((sum, s) => sum + (s.frequency === 'yearly' ? s.amt : s.amt * 12), 0);
+
+  const activeCount = subscriptions.filter((s) => s.active).length;
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +63,7 @@ export const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
       return;
     }
 
-    const ok = onAddSubscription(trimmed, numAmt);
+    const ok = onAddSubscription(trimmed, numAmt, frequency, nextPaymentDate.trim() || undefined);
     if (ok) {
       setName('');
       setAmt('');
@@ -73,7 +83,7 @@ export const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
               Subscription & Recurring Commitments
             </h2>
             <p className="text-xs text-[#8e9c93]">
-              Auto-renewing charges that lower your daily allowance every single day of the month
+              Auto-renewing monthly and annual commitments that affect your available spending allowance and future projections
             </p>
           </div>
         </div>
@@ -88,8 +98,8 @@ export const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6">
-          <div className="sm:col-span-6">
+        <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6 bg-[#0e1210] p-4 rounded-xl border border-[#1f2823]">
+          <div className="sm:col-span-4">
             <label
               htmlFor="sub-name"
               className="block text-[11px] font-mono uppercase text-[#8e9c93] mb-1"
@@ -100,33 +110,70 @@ export const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
               type="text"
               id="sub-name"
               maxLength={60}
-              placeholder="e.g. Spotify, Netflix, Hotstar, Gym"
+              placeholder="e.g. Spotify, Netflix, Gym"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#181f1b] border border-[#232b26] text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
-          <div className="sm:col-span-4">
+
+          <div className="sm:col-span-3">
+            <label
+              htmlFor="sub-frequency"
+              className="block text-[11px] font-mono uppercase text-[#8e9c93] mb-1"
+            >
+              Billing Frequency
+            </label>
+            <select
+              id="sub-frequency"
+              value={frequency}
+              onChange={(e) => setFrequency(e.target.value as BillingFrequency)}
+              className="w-full px-3 py-2.5 rounded-xl bg-[#181f1b] border border-[#232b26] text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            >
+              <option value="monthly">Monthly Recurring</option>
+              <option value="yearly">Yearly / Annual</option>
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
             <label
               htmlFor="sub-amount"
               className="block text-[11px] font-mono uppercase text-[#8e9c93] mb-1"
             >
-              Monthly Cost (₹)
+              {frequency === 'yearly' ? 'Annual (₹)' : 'Monthly (₹)'}
             </label>
             <input
               type="number"
               id="sub-amount"
               min="1"
               max="50000"
-              placeholder="199"
+              placeholder={frequency === 'yearly' ? '1199' : '199'}
               value={amt}
               onChange={(e) => setAmt(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#181f1b] border border-[#232b26] text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className="w-full px-3 py-2.5 rounded-xl bg-[#181f1b] border border-[#232b26] text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
-          <div className="sm:col-span-2 flex items-end">
+
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="sub-date"
+              className="block text-[11px] font-mono uppercase text-[#8e9c93] mb-1"
+            >
+              Next Due Date
+            </label>
+            <input
+              type="text"
+              id="sub-date"
+              placeholder="e.g. Day 25"
+              value={nextPaymentDate}
+              onChange={(e) => setNextPaymentDate(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-[#181f1b] border border-[#232b26] text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+          </div>
+
+          <div className="sm:col-span-1 flex items-end">
             <Button variant="primary" type="submit" className="w-full h-[42px] text-xs">
-              <Plus className="w-4 h-4 mr-1" /> Add
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
         </form>
@@ -137,17 +184,24 @@ export const SubscriptionManager: React.FC<SubscriptionManagerProps> = ({
           totalDailyDrain={totalDailyDrain}
           savedAnnual={savedAnnual}
           activeBudgetPct={activeBudgetPct}
+          upcomingCount={activeCount}
         />
 
         <div className="space-y-2.5">
-          {subscriptions.map((sub) => (
-            <SubscriptionItem
-              key={sub.id}
-              sub={sub}
-              onToggle={onToggleSubscription}
-              onDelete={onDeleteSubscription}
-            />
-          ))}
+          {subscriptions.length === 0 ? (
+            <div className="text-center py-8 text-sm text-[#8e9c93] bg-[#0e1210] rounded-xl border border-dashed border-[#232b26]">
+              No subscriptions added yet. Add regular commitments above to protect your daily budget.
+            </div>
+          ) : (
+            subscriptions.map((sub) => (
+              <SubscriptionItem
+                key={sub.id}
+                sub={sub}
+                onToggle={onToggleSubscription}
+                onDelete={onDeleteSubscription}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

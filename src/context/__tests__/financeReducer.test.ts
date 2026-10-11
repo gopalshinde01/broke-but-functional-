@@ -140,4 +140,80 @@ describe('financeReducer actions', () => {
     expect(blank.expenses).toHaveLength(0);
     expect(blank.day).toBe(1);
   });
+
+  it('EDIT_EXPENSE updates existing expense attributes accurately', () => {
+    const state: FinanceState = {
+      ...INITIAL_BLANK_STATE,
+      expenses: [
+        { id: 'exp-1', name: 'Original', amt: 100, cat: 'Food', day: 2, createdAt: 100 },
+      ],
+    };
+
+    const nextState = financeReducer(state, {
+      type: 'EDIT_EXPENSE',
+      payload: {
+        id: 'exp-1',
+        updates: {
+          name: 'Updated Groceries',
+          amt: 250,
+          cat: 'Shopping',
+          day: 5,
+          description: 'Supermarket purchase',
+        },
+      },
+    });
+
+    expect(nextState.expenses).toHaveLength(1);
+    expect(nextState.expenses[0]?.name).toBe('Updated Groceries');
+    expect(nextState.expenses[0]?.amt).toBe(250);
+    expect(nextState.expenses[0]?.cat).toBe('Shopping');
+    expect(nextState.expenses[0]?.day).toBe(5);
+    expect(nextState.expenses[0]?.description).toBe('Supermarket purchase');
+  });
+
+  it('ADD_INCOME and DELETE_INCOME manage additional income inflows', () => {
+    const state = INITIAL_BLANK_STATE;
+    const withIncome = financeReducer(state, {
+      type: 'ADD_INCOME',
+      payload: {
+        source: 'Freelance Design',
+        amt: 3000,
+        day: 10,
+        description: 'Logo commission',
+      },
+    });
+
+    expect(withIncome.incomes).toHaveLength(1);
+    expect(withIncome.incomes?.[0]?.source).toBe('Freelance Design');
+    expect(withIncome.incomes?.[0]?.amt).toBe(3000);
+    expect(withIncome.incomes?.[0]?.day).toBe(10);
+
+    const incomeId = withIncome.incomes![0]!.id;
+    const deletedIncome = financeReducer(withIncome, {
+      type: 'DELETE_INCOME',
+      payload: { id: incomeId },
+    });
+
+    expect(deletedIncome.incomes).toHaveLength(0);
+  });
+
+  it('ADD_SUBSCRIPTION supports monthly and yearly billing frequencies', () => {
+    const state = INITIAL_BLANK_STATE;
+    const withAnnualSub = financeReducer(state, {
+      type: 'ADD_SUBSCRIPTION',
+      payload: {
+        name: 'Gym Membership',
+        amt: 6000,
+        frequency: 'yearly',
+        nextPaymentDate: 'Day 28',
+      },
+    });
+
+    const sub = withAnnualSub.subs.find((s) => s.name === 'Gym Membership');
+    expect(sub).toBeDefined();
+    expect(sub?.amt).toBe(6000);
+    expect(sub?.frequency).toBe('yearly');
+    expect(sub?.nextPaymentDate).toBe('Day 28');
+    expect(sub?.active).toBe(true);
+  });
 });

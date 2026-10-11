@@ -182,9 +182,13 @@ export function simulateSurvivalProbability(
     const currentDay = Math.min(CYCLE_DAYS - 1, Math.max(0, state.day || 0));
     daysLeft = Math.max(1, CYCLE_DAYS - currentDay);
     const spent = (state.expenses || []).reduce((acc, e) => acc + (Number(e.amt) || 0), 0) + extra;
-    remaining = (state.budget || 0) + (state.income || 0) - spent;
+    const totalRecordedIncome = (state.incomes || []).reduce((acc, inc) => acc + (Number(inc.amt) || 0), 0);
+    remaining = (state.budget || 0) + (state.income || 0) + totalRecordedIncome - spent;
     committed = (state.subs || []).reduce(
-      (acc, s) => (s.active ? acc + (Number(s.amt) || 0) : acc),
+      (acc, s) => {
+        if (!s.active) return acc;
+        return acc + (s.frequency === 'yearly' ? Math.round((Number(s.amt) || 0) / 12) : (Number(s.amt) || 0));
+      },
       0
     );
     const disc =
@@ -266,7 +270,8 @@ export function simulateSurvivalProbability(
 export function calc(state: FinanceState, extra: number = 0): CalculationResult {
   const safeBudget = Math.max(1, state.budget || 0);
   const safeReserve = Math.max(1, state.reserve || 0);
-  const safeIncome = state.income || 0;
+  const recordedIncomes = (state.incomes || []).reduce((acc, inc) => acc + (Number(inc.amt) || 0), 0);
+  const safeIncome = (state.income || 0) + recordedIncomes;
   const currentDay = Math.min(CYCLE_DAYS - 1, Math.max(0, state.day || 0));
 
   // 1. Total spent: sum of all recorded expenses + optional simulated purchase
@@ -279,11 +284,13 @@ export function calc(state: FinanceState, extra: number = 0): CalculationResult 
   // 2. Remaining balance: budget + income - spent
   const remaining = safeBudget + safeIncome - spent;
 
-  // 3. Committed upcoming expenses: active subscriptions reserved from balance
-  const committed = (state.subs || []).reduce(
-    (acc, sub) => (sub.active ? acc + (Number(sub.amt) || 0) : acc),
-    0
-  );
+  // 3. Committed upcoming expenses: active subscriptions reserved from balance (monthly equivalent)
+  const committed = (state.subs || []).reduce((acc, sub) => {
+    if (!sub.active) return acc;
+    const monthlyAmt =
+      sub.frequency === 'yearly' ? Math.round((Number(sub.amt) || 0) / 12) : Number(sub.amt) || 0;
+    return acc + monthlyAmt;
+  }, 0);
 
   // 4. Days remaining in cycle: guarded against divide-by-zero
   const daysLeft = Math.max(1, CYCLE_DAYS - currentDay);
@@ -393,6 +400,8 @@ export function calc(state: FinanceState, extra: number = 0): CalculationResult 
   );
 
   return {
+    totalIncome: safeIncome,
+    totalActualExpenses: totalBaseExpenses,
     spent,
     remaining,
     committed,

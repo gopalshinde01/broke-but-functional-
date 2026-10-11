@@ -14,6 +14,8 @@ const EmergencySimulator = lazy(() => import('@/components/emergency/EmergencySi
 const SavingsGoals = lazy(() => import('@/components/savings/SavingsGoals'));
 const SubscriptionManager = lazy(() => import('@/components/subscriptions/SubscriptionManager'));
 const SmartInsights = lazy(() => import('@/components/insights/SmartInsights'));
+const FinancialForecastScreen = lazy(() => import('@/components/forecast/FinancialForecastScreen'));
+const FinancialHealthScreen = lazy(() => import('@/components/health/FinancialHealthScreen'));
 
 function ScreenSkeleton() {
   return (
@@ -57,7 +59,10 @@ export function AppContent() {
     dashboardSliderExtra,
     setDashboardSliderExtra,
     addExpense,
+    editExpense,
     deleteExpense,
+    addIncome,
+    deleteIncome,
     lastDeletedExpense,
     undoDeleteExpense,
     survivalStreak,
@@ -128,6 +133,7 @@ export function AppContent() {
                 state={state}
                 calc={currentCalc}
                 onOpenSimulator={() => setActiveScreen('simulator')}
+                onNavigateTab={(tab) => setActiveScreen(tab as ActiveScreen)}
               />
 
               <Suspense fallback={<Skeleton height="320px" className="w-full rounded-2xl" />}>
@@ -173,7 +179,10 @@ export function AppContent() {
                 <ExpenseTracker
                   state={state}
                   onAddExpense={addExpense}
+                  onEditExpense={editExpense}
                   onDeleteExpense={handleDeleteWithUndo}
+                  onAddIncome={addIncome}
+                  onDeleteIncome={deleteIncome}
                 />
               </Suspense>
             </section>
@@ -276,6 +285,37 @@ export function AppContent() {
                   onUpdateSettings={updateSettings}
                   onLoadDemoMonth={loadDemoMonth}
                   onResetToBlank={resetToBlank}
+                />
+              </Suspense>
+            </section>
+          )}
+
+          {/* Screen 8: Financial Forecast */}
+          {activeScreen === 'forecast' && (
+            <section aria-labelledby="forecast-heading">
+              <h2 id="forecast-heading" className="sr-only">
+                30-Day Monthly Financial Forecast
+              </h2>
+              <Suspense fallback={<ScreenSkeleton />}>
+                <FinancialForecastScreen
+                  state={state}
+                  calc={currentCalc}
+                  chartSeries={chartSeries}
+                />
+              </Suspense>
+            </section>
+          )}
+
+          {/* Screen 9: Financial Health */}
+          {activeScreen === 'health' && (
+            <section aria-labelledby="health-heading">
+              <h2 id="health-heading" className="sr-only">
+                Financial Health Diagnostic
+              </h2>
+              <Suspense fallback={<ScreenSkeleton />}>
+                <FinancialHealthScreen
+                  state={state}
+                  calc={currentCalc}
                 />
               </Suspense>
             </section>

@@ -29,6 +29,10 @@ const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
   Shopping: '#f472b6',
   Entertainment: '#a78bfa',
   Bills: '#fb923c',
+  Education: '#facc15',
+  Health: '#34d399',
+  Subscriptions: '#818cf8',
+  Emergency: '#f87171',
   Savings: '#c6ff3d',
   Other: '#94a3b8',
 };

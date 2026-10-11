@@ -11,6 +11,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   AlertOctagon,
+  LineChart,
+  Activity,
 } from 'lucide-react';
 import type { ActiveScreen, RiskLevel } from '@/types';
 import { formatINR } from '@/utils/financeCalculations';
@@ -30,10 +32,12 @@ const navItems: {
 }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'transactions', label: 'Transactions', icon: ReceiptText },
-  { id: 'simulator', label: 'Simulator', icon: SlidersHorizontal },
-  { id: 'emergency', label: 'Emergency Hub', icon: AlertOctagon },
+  { id: 'simulator', label: 'Decision Simulator', icon: SlidersHorizontal },
   { id: 'savings', label: 'Savings Goals', icon: PiggyBank },
   { id: 'subscriptions', label: 'Subscriptions', icon: Repeat },
+  { id: 'emergency', label: 'Emergency Hub', icon: AlertOctagon },
+  { id: 'forecast', label: 'Financial Forecast', icon: LineChart },
+  { id: 'health', label: 'Financial Health', icon: Activity },
   { id: 'insights', label: 'Insights & Settings', icon: Lightbulb },
 ];
 

@@ -45,6 +45,10 @@ export const EXPENSE_CATEGORIES: readonly ExpenseCategory[] = [
   'Shopping',
   'Entertainment',
   'Bills',
+  'Education',
+  'Health',
+  'Subscriptions',
+  'Emergency',
   'Savings',
   'Other',
 ] as const;
@@ -56,7 +60,7 @@ export const EMERGENCY_PRESETS = [
   {
     name: 'Medical Emergency',
     amt: 1500,
-    cat: 'Bills' as ExpenseCategory,
+    cat: 'Health' as ExpenseCategory,
     label: 'Medical ₹1,500',
     description: 'Clinic consultation, prescribed medicines & tests',
   },
@@ -85,6 +89,7 @@ export const INITIAL_BLANK_STATE: FinanceState = {
   reserve: DEFAULT_RESERVE,
   day: DEFAULT_DAY,
   expenses: [],
+  incomes: [],
   subs: [],
   goals: [
     {
@@ -178,10 +183,11 @@ export const DEMO_MONTH_STATE: FinanceState = {
       createdAt: 1710604850000,
     },
   ],
+  incomes: [],
   subs: [
-    { id: 'sub-1', name: 'Music', amt: 119, active: true },
-    { id: 'sub-2', name: 'Video streaming', amt: 299, active: true },
-    { id: 'sub-3', name: 'Gaming pass', amt: 149, active: true },
+    { id: 'sub-1', name: 'Music', amt: 119, frequency: 'monthly', nextPaymentDate: 'Day 15', active: true },
+    { id: 'sub-2', name: 'Video streaming', amt: 299, frequency: 'monthly', nextPaymentDate: 'Day 18', active: true },
+    { id: 'sub-3', name: 'Gaming pass', amt: 149, frequency: 'monthly', nextPaymentDate: 'Day 22', active: true },
   ],
   goals: [
     {

@@ -1,12 +1,12 @@
 # Broke But Functional: Survive the Month 💸
 
 > **"30 days. ₹10,000. Make every rupee count."**  
-> A high-impact financial survival engine and decision sandbox built for Indian students and Gen Z surviving on a tight monthly budget.
+> A high-impact financial survival engine and decision sandbox built for Indian students and Gen Z managing a tight monthly budget.
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](<>)
-[![TypeScript](<https://img.shields.io/badge/TypeScript-5.7%20(strict)-blue.svg>)](<>)
-[![Test Coverage](<https://img.shields.io/badge/coverage-93.25%25%20(engine)-success.svg>)](<>)
-[![Bundle Size](<https://img.shields.io/badge/initial%20bundle-53.6%20kB%20(14.7%20kB%20gzip)-indigo.svg>)](<>)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7%20(strict)-blue.svg)](<>)
+[![Test Coverage](https://img.shields.io/badge/tests-46%20passed%20(100%25)-success.svg)](<>)
+[![Bundle Size](https://img.shields.io/badge/initial%20bundle-61.1%20kB%20(16.2%20kB%20gzip)-indigo.svg)](<>)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
 **🌐 Live Demo:** [https://gopalshinde01.github.io/broke-but-functional-/](https://gopalshinde01.github.io/broke-but-functional-/)  
@@ -14,213 +14,182 @@
 
 ---
 
-## 🎯 Executive Overview
+## 🎯 Executive Overview & Problem Statement
 
-**Broke But Functional: Survive the Month** is not merely a reactive expense tracker—it is an **active consequence simulator**. Built specifically for students and young adults living on a ₹10,000 monthly allowance, it gives users a financial sandbox where prospective decisions can be tested _before_ spending a single rupee.
+### The Problem
+Most budgeting and personal finance applications are strictly **reactive expense logs** designed for salaried professionals with predictable cashflows. For college students and Gen Z managing an unyielding ₹10,000 monthly allowance over 30 days, retrospective accounting is already too late: spending ₹2,000 in Week 1 silently triggers catastrophic month-end deficits.
 
-Every simulated transaction instantly recalculates the entire economic lifecycle:
-
-- **Daily Spendable Allowance** (`available ÷ daysLeft`)
-- **Day 30 Projected Balance** & deficit risk
-- **Emergency Reserve Buffer** health
-- **Savings Goals Trajectory** & completion milestones
-- **500-Run Monte Carlo Survival Probability**
-- **Holistic Financial Health Score** (0–100)
+### The Solution: "Broke But Functional"
+**Broke But Functional** goes far beyond basic expense tracking into an **active financial consequence simulator**:
+1. **Paced Daily Spending Allowance**: Dynamically computes `(Available Spending Money) / (Days Remaining)`, safeguarding locked emergency reserves (₹1,500) and upcoming committed subscriptions.
+2. **What-If Decision Simulator**: Allows students to test purchases before spending a single rupee across 3 scenarios (**Buy Now**, **Wait 7 Days**, **Skip Purchase**), showing before-and-after impacts on balance, allowance, risk, health score, and Day 30 forecast.
+3. **Emergency Shock Hub**: Simulates unbudgeted emergency expenses (Medical ₹1,500, Laptop Repair ₹3,000, Travel ₹800) and quantifies their exact impact on runway.
+4. **Subscription Manager**: Tracks monthly & yearly recurring commitments, calculates monthly-equivalent drag, records next due dates, and protects funds without double-counting.
+5. **Multiple Savings Goals**: Enables goal creation, target tracking, and transfers without double-counting.
+6. **Additional Income Ledger**: Records tutoring, stipends, and freelance inflows directly into the accounting model.
+7. **Transparent 30-Day Forecast & 100-Point Health Diagnostic**: Dedicated full-screen views with explainable deterministic models.
 
 All currency is strictly formatted in Indian Rupees (**INR / ₹**) using `Intl.NumberFormat('en-IN')`. Everything executes client-side with zero backend dependencies, zero paid third-party APIs, and versioned `localStorage` recovery.
 
 ---
 
-## 🧭 The 12 Compulsory Requirements Matrix
+## 🧭 Complete Financial Requirements & Feature Mapping
 
-| #      | Requirement                | Implementation Module                                                                                                                                     | Technical Highlights                                                                                                                                                                      |
-| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1**  | **Budget Management**      | [`CycleSettingsForm.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/insights/CycleSettingsForm.tsx)          | Starts with ₹10,000 for a 30-day period. Editable budget, day, and reserve threshold with reset presets.                                                                                  |
-| **2**  | **Balance Tracking**       | [`BudgetCards.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/BudgetCards.tsx)                     | Tracks Total Budget, Total Spent, Remaining Balance, Committed Fixed Costs, and Spendable Cash.                                                                                           |
-| **3**  | **Expense Tracker**        | [`ExpenseTracker.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/transactions/ExpenseTracker.tsx)            | Add/delete expenses across 7 categories (`Food`, `Travel`, `Shopping`, `Entertainment`, `Bills`, `Savings`, `Other`). Category filtering, search query matching, and 5-second undo toast. |
-| **4**  | **Daily Allowance**        | [`BudgetCards.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/BudgetCards.tsx)                     | Formula: `max(0, available ÷ daysLeft)`. Flags critical warnings and zero-allowance states in high-contrast red.                                                                          |
-| **5**  | **Multiple Savings Goals** | [`SavingsGoals.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/savings/SavingsGoals.tsx)                     | Full CRUD for multiple concurrent goals. Depositing money links directly into ledger as a verified "Savings" expense with celebratory confetti.                                           |
-| **6**  | **Subscription Manager**   | [`SubscriptionManager.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/subscriptions/SubscriptionManager.tsx) | Monthly recurring list with active toggle (Cancel/Keep). Displays monthly total, annual total (×12), budget %, and exact daily drag (`-₹X/day`).                                          |
-| **7**  | **Emergency Shock Hub**    | [`EmergencySimulator.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/emergency/EmergencySimulator.tsx)       | Instant stress tests for unbudgeted shocks: Medical (₹1,500), Repair (₹3,000), Travel (₹800), and custom amounts. Confirms and commits to ledger.                                         |
-| **8**  | **Monthly Forecast**       | [`SpendingChart.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/SpendingChart.tsx)                 | Interactive Recharts multi-line trajectory (Actual Solid Emerald, Projected Dashed Violet, Simulated Dashed Amber). Screen-reader accessible table fallback.                              |
-| **9**  | **Financial Risk Engine**  | [`BudgetCards.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/BudgetCards.tsx)                     | Triple-tier risk classification (`Low`, `Medium`, `High`) with transparent, dynamic explanatory rationale.                                                                                |
-| **10** | **Financial Health Index** | [`FinancialHealth.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/FinancialHealth.tsx)             | 0–100 composite index weighted over 5 pillars with clear disclaimer (_app-generated indicator, not professional financial advice_).                                                       |
-| **11** | **Decision Simulator**     | [`WhatIfSimulator.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/simulator/WhatIfSimulator.tsx)             | Sandbox mode: **Buy Now** (consequence diff + commit), **Wait 7 Days** (7-day rule math), and **Skip Purchase** (quantified savings retained).                                            |
-| **12** | **Interconnected State**   | [`FinanceContext.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/context/FinanceContext.tsx)                            | Centralized unidirectional reducer. Any change in subscriptions, expenses, or settings synchronously cascades through all 11 other modules.                                               |
+| # | Feature Area | Implementation Modules | Technical Highlights & Discoverability |
+|---|---|---|---|
+| **A** | **Financial Dashboard** | [`BudgetCards.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/BudgetCards.tsx), [`SpendingChart.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/SpendingChart.tsx) | Displays all 10 required financial metrics: Starting budget (₹10,000 / 30d), Total Additional Income, Actual Expenses, Remaining Balance, Upcoming Committed, Daily Allowance, Savings Progress, Financial Risk, Health Score, and Predicted Day 30 Balance. Demo data seeded on first launch. |
+| **B** | **Expense Tracker & Income Ledger** | [`ExpenseTracker.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/transactions/ExpenseTracker.tsx), [`ExpenseForm.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/transactions/ExpenseForm.tsx), [`ExpenseList.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/transactions/ExpenseList.tsx) | Full CRUD: Add, Edit, Delete expenses with Name, Amount, Day/Date, Description, and Category (`Food`, `Travel`, `Shopping`, `Entertainment`, `Bills`, `Education`, `Health`, `Subscriptions`, `Emergency`, `Other`). Category breakdown summary cards with percentage bars. Dual-ledger tab to record Additional Income inflows with 5-second undo toast. |
+| **C** | **Daily Spending Allowance** | [`BudgetCards.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/BudgetCards.tsx), [`financeCalculations.ts`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/utils/financeCalculations.ts) | Dynamic formula: `Available Spending Money / Days Remaining`. Accounts for committed upcoming bills and protected reserves. Clamped against divide-by-zero. Meaningful warnings on low/negative allowance. |
+| **D** | **Savings Goals Tracker** | [`SavingsGoals.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/savings/SavingsGoals.tsx) | Multi-goal tracker: goal name, target amount, current saved, progress percentage bar, contribution logging. Contributions treated as internal savings transfers to avoid double-counting. |
+| **E** | **Subscription Manager** | [`SubscriptionManager.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/subscriptions/SubscriptionManager.tsx), [`SubscriptionItem.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/subscriptions/SubscriptionItem.tsx) | Supports monthly and yearly subscriptions. Converts annual fees into monthly-equivalent costs (`Math.round(amt / 12)`). Tracks next payment date (e.g. Day 25) and active vs cancelled states. Auto-reserves future commitments without duplicate subtraction. |
+| **F** | **Unexpected Expense Simulator** | [`EmergencySimulator.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/emergency/EmergencySimulator.tsx) | Stress-tests unbudgeted shocks (Medical ₹1,500, Laptop Repair ₹3,000, Travel ₹800). Displays live impact on remaining balance, daily allowance, reserve buffer, and health score with a clear "Confirm Expense" button. |
+| **G** | **What-If Decision Simulator** | [`WhatIfSimulator.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/simulator/WhatIfSimulator.tsx), [`SimulatorInputs.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/simulator/SimulatorInputs.tsx) | Sandboxes prospective purchases with description, amount, category, **Essential Need vs Non-Essential Want classification**, and planned purchase date. Evaluates 3 scenarios: **1. Buy Now**, **2. Wait 7 Days**, **3. Skip Purchase**. Simulated items never modify real financial state until explicitly confirmed. |
+| **H** | **Monthly Financial Forecast** | [`FinancialForecastScreen.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/forecast/FinancialForecastScreen.tsx) | Dedicated full-screen 30-day forecast view. Interactive Recharts curve with actuals up to Day N and deterministic dashed projection to Day 30. Day-by-day trajectory table and explainable formula breakdown. |
+| **I** | **Financial Risk Indicator** | [`BudgetCards.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/BudgetCards.tsx), [`FinancialHealthScreen.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/health/FinancialHealthScreen.tsx) | Transparent 3-tier risk indicator (`Low`, `Medium`, `High`) based on projected Day 30 deficit, daily allowance tightness (<₹150/d), and emergency reserve preservation. Displays detailed explanatory rationale. |
+| **J** | **Financial Health Score** | [`FinancialHealthScreen.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/health/FinancialHealthScreen.tsx), [`FinancialHealth.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/dashboard/FinancialHealth.tsx) | Explainable 0–100 score across 5 weighted pillars: Budget Adherence (30 pts), Month-End Outlook (25 pts), Reserve Buffer (20 pts), Savings Progress (15 pts), and Subscription Cap (10 pts). Labeled as an application budgeting indicator. |
+| **K** | **Smart Financial Insights** | [`SmartInsights.tsx`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/components/insights/SmartInsights.tsx) | Dynamic recommendations generated from live ledger state: spending pace alerts, subscription burden warnings, reserve deficit flags, and savings milestone cheer. |
 
 ---
 
 ## 🏛️ System Architecture
 
-The application enforces a decoupled, layered software architecture with single-responsibility modularization (<150 LOC per presentation component):
+The application enforces a decoupled, layered software architecture with single-responsibility modularization:
 
 ```
 src/
 ├── types/                     # Zero-any strict TypeScript type definitions & unions
-│   ├── finance.ts             # Domain entities (Expense, Subscription, SavingsGoal, etc.)
-│   └── index.ts               # Barrel export
+│   └── index.ts               # Expense, IncomeItem, Subscription, SavingsGoal, CalculationResult
 ├── constants/                 # Centralized configuration & static presets
-│   └── index.ts               # Scoring weights, risk thresholds, storage keys, demo seed data
+│   └── index.ts               # Scoring weights, risk thresholds, categories, demo seed data
 ├── utils/                     # Pure mathematical and storage logic (framework agnostic)
-│   ├── financeCalculations.ts # Deterministic financial engine & Monte Carlo simulation
+│   ├── financeCalculations.ts # Single source of truth financial engine & Monte Carlo simulation
 │   ├── storage.ts             # Versioned schema validation, corruption recovery, CSV/JSON I/O
-│   └── __tests__/             # Comprehensive Vitest unit test suites
+│   └── __tests__/             # Vitest pure calculation and storage unit test suites
 ├── context/                   # State management & action dispatching
-│   ├── FinanceContext.tsx     # React Context, custom provider, and persistent reducer
+│   ├── FinanceContext.tsx     # Centralized React Context and persistent reducer
 │   └── __tests__/             # Reducer state transition tests
 ├── hooks/                     # Custom React hooks
-│   ├── useFinance.ts          # Type-safe consumer hook for finance context
+│   ├── useFinance.ts          # Facade hook combining finance context and simulation state
 │   ├── useSimulation.ts       # Isolated sandbox simulation hook
-│   ├── useLocalStorage.ts     # Generic resilient localStorage hook
-│   └── index.ts
-└── components/                # Presentation tier (split by functional domain)
-    ├── ui/                    # Reusable, accessible UI primitive kit (Card, Button, Modal, etc.)
-    ├── layout/                # Responsive navigation, skip links, and header
-    ├── dashboard/             # Balance cards, spending charts, health index, streak badge
-    ├── simulator/             # What-if purchase decision sandbox & scenario comparison
-    ├── emergency/             # Emergency shock testing hub
-    ├── savings/               # Multi-goal tracker & milestone progress
-    ├── subscriptions/         # Recurring cost analyzer & daily drag calculator
-    ├── transactions/          # Expense ledger with filtering & live search
-    └── insights/              # Budget runway alerts, JSON/CSV backup, cycle settings
+│   └── useLocalStorage.ts     # Resilient localStorage hook
+├── components/                # Presentation tier (split by functional domain)
+│   ├── ui/                    # Reusable UI kit (Button, Card, Modal, ProgressBar, Toast)
+│   ├── layout/                # Responsive SidebarNav and DashboardHeader
+│   ├── dashboard/             # BudgetCards (10 metrics), SpendingChart, WhatIfSliderCard
+│   ├── transactions/          # ExpenseTracker, ExpenseList (with Edit), ExpenseForm, IncomeList
+│   ├── simulator/             # WhatIfSimulator, SimulatorInputs (Need vs Want), DecisionMatrixTable
+│   ├── emergency/             # EmergencySimulator (Shock testing hub)
+│   ├── savings/               # SavingsGoals tracker & milestone progress
+│   ├── subscriptions/         # SubscriptionManager (Monthly/Yearly frequencies & dates)
+│   ├── forecast/              # FinancialForecastScreen (Dedicated 30-day forecast view)
+│   ├── health/                # FinancialHealthScreen (Dedicated 100-pt diagnostic view)
+│   └── insights/              # SmartInsights & CycleSettingsForm
+└── App.tsx                    # Root routing container with React.lazy code-splitting
 ```
 
 ### Unidirectional Data Flow
 
 ```mermaid
 graph TD
-    User([User Interaction]) --> Actions[Dispatched Actions]
-    Actions --> Reducer[Finance Reducer]
-    Reducer --> Engine[Pure Engine: financeCalculations.ts]
+    User([User Interaction]) --> Actions[Dispatched Actions: Add/Edit/Delete]
+    Actions --> Reducer[Finance Reducer: FinanceContext.tsx]
+    Reducer --> Engine[Single Source of Truth: financeCalculations.ts]
     Reducer --> Storage[Storage Engine: storage.ts]
     Storage --> LS[(localStorage 'bbf:v2')]
     Engine --> ContextState[Recalculated Finance State & Metrics]
-    ContextState --> Presentation[React Presentation Tier]
-    Presentation --> Recharts[Recharts SVG Visualizations]
-    Presentation --> UIPrimitives[UI Primitives & A11y Announcements]
+    ContextState --> Presentation[React Presentation Tier & Views]
+    Presentation --> Views[Dashboard / Transactions / Simulator / Forecast / Health]
 ```
 
 ---
 
-## 🧮 Mathematical Engine & Formulas
+## 🧮 One Shared Calculation Engine & Accounting Rules
 
-Every metric is derived deterministically by pure functions inside [`src/utils/financeCalculations.ts`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/utils/financeCalculations.ts).
+All components, cards, charts, and simulators consume a single centralized pure function: `calc(state, extra = 0)` in [`src/utils/financeCalculations.ts`](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/src/utils/financeCalculations.ts).
 
-### 1. Core Financial Aggregates
+### Core Accounting Equations
 
-$$\text{spent} = \sum \text{expenses.amount} + \text{extra}$$
-$$\text{remaining} = \text{budget} + \text{income} - \text{spent}$$
-$$\text{committed} = \sum \text{activeSubscriptions.amount}$$
-$$\text{daysLeft} = \max(1, 30 - \text{day})$$
-$$\text{available} = \text{remaining} - \text{reserve} - \text{committed}$$
+$$\text{Actual Balance} = \text{Starting Budget} + \sum \text{Incomes} - \sum \text{Expenses}$$
 
-### 2. Daily Spendable Allowance
+$$\text{Committed Fixed Costs} = \sum_{\text{active}} \begin{cases} \text{round}(\text{amt} / 12) & \text{if yearly} \\ \text{amt} & \text{if monthly} \end{cases}$$
 
-$$\text{dailyAllowance} = \frac{\max(0, \text{available})}{\text{daysLeft}}$$
+$$\text{Available Spending Money} = \text{Actual Balance} - \text{Emergency Reserve} - \text{Committed Fixed Costs}$$
 
-### 3. Run-rate & Day 30 Projected Balance
+$$\text{Days Remaining} = \max(1, 30 - \text{Current Day})$$
 
-The run-rate calculates daily burn based exclusively on discretionary outflows (excluding goal deposits):
-$$\text{discretionarySpent} = \sum_{\text{cat} \neq \text{'Savings'}} \text{expenses.amount} + \text{extra}$$
-$$\text{dailyBurnRate} = \frac{\text{discretionarySpent}}{\max(1, \text{day})}$$
-$$\text{projectedDay30Balance} = \text{remaining} - \text{committed} - (\text{dailyBurnRate} \times \text{daysLeft})$$
+$$\text{Daily Spending Allowance} = \frac{\max(0, \text{Available Spending Money})}{\text{Days Remaining}}$$
 
-### 4. Risk Level Thresholds
+$$\text{Projected Day 30 Balance} = \text{Actual Balance} - \text{Committed Fixed Costs} - (\text{Discretionary RunRate} \times \text{Days Remaining})$$
 
-$$ \text{Risk} = \begin{cases}
-\mathbf{High} & \text{if } \text{projectedDay30Balance} < 0 \\
-\mathbf{Medium} & \text{if } \text{projectedDay30Balance} < \text{reserve} \\
-\mathbf{Low} & \text{otherwise}
-\end{cases}$$
-
-### 5. "Wait 7 Days" Cooling-Off Rule
-When evaluating whether to defer an impulse expense by 7 days:
-- If $\text{daysLeft} > 7$, the current daily allowance is preserved intact for 7 days, and the purchase amount is amortized across the remaining days:
-$$\text{allowance}_{\text{after 7 days}} = \frac{\text{available} - (\text{dailyAllowance} \times 7) - \text{amount}}{\text{daysLeft} - 7}$$
-- If $\text{daysLeft} \le 7$, the purchase is deferred into the subsequent monthly cycle, preserving 100% of the current month's remaining runway.
-
-### 6. Holistic Financial Health Score (0–100)
-Calculated via a 5-pillar weighted model where $\text{clamp}(x) = \min(1, \max(0, x))$ and $\text{pace} = \text{budget} \times \frac{\text{day}}{30}$:
-
-| Pillar | Weight | Metric Formula |
-|---|---|---|
-| **Budget Adherence** | 30 pts | $30 \times \text{clamp}\left(1 - \frac{\max(0, \text{spent} - \text{pace})}{0.25 \times \text{budget}}\right)$ |
-| **Reserve Buffer** | 20 pts | $20 \times \text{clamp}\left(\frac{\text{remaining} - \text{committed}}{\max(1, \text{reserve})}\right)$ |
-| **Month Outlook** | 25 pts | $25 \times \text{clamp}\left(\frac{\text{projectedDay30Balance}}{0.15 \times \text{budget}}\right)$ |
-| **Savings Traction** | 15 pts | $15 \times \text{clamp}\left(\frac{\text{totalSaved}}{\max(1, \text{totalTarget})}\right)$ |
-| **Commitments Ratio** | 10 pts | $10 \times \text{clamp}\left(1 - \frac{\text{committed}}{0.20 \times \text{budget}}\right)$ |
-
-$$\text{Health Score} = \text{round}(\text{Adherence} + \text{Reserve} + \text{Outlook} + \text{Savings} + \text{Commitments})$$
-
-### 7. Monte Carlo Survival Probability (Innovation)
-Rather than relying solely on linear projections, the engine executes **500 seeded Monte Carlo iterations** (`simulateSurvivalProbability`) simulating remaining days with Gaussian spending variance $(\sigma = \text{avg} \times 0.35)$ and Poisson shock events:
-$$\text{Survival Probability} = \left(\frac{\text{Successful Runs}}{\text{Total Runs (500)}}\right) \times 100\%$$
+### Accounting Invariance Guarantees
+- **No Double-Counting**: Savings goal contributions recorded in the ledger are flagged (`cat: 'Savings'`) and excluded from discretionary burn-rate calculations so students are not penalized for saving.
+- **Commitments Protection**: Subscriptions are deducted from `Available Spending Money` and future projections, but are **never** subtracted twice from actual balance.
+- **Strict Simulation Isolation**: Simulated purchases in `WhatIfSimulator` pass an `extra` parameter to pure calculations. State mutation occurs **only** when the user clicks the explicit "Confirm Purchase" button.
 
 ---
 
-## 🔒 Security & Data Integrity
+## 🛡️ Financial Health Score & Risk Methodology
 
-- **Content Security Policy (CSP)**: Hardened via `<meta http-equiv="Content-Security-Policy">` strictly allowing `'self'`, Google Fonts, data URIs, and local WebSockets for Vite HMR.
-- **Runtime Schema Validation**: Defensive type guards (`isValidFinanceState`, `isValidExpense`) validate every JSON structure imported or read from `localStorage` before state hydration.
-- **Corrupt Storage Recovery**: Automated fallback pipeline loads demo defaults seamlessly if storage contains invalid JSON or schema violations without throwing uncaught exceptions.
-- **Zero Remote Exfiltration**: Operates 100% offline. Financial transactions, goal balances, and subscription records never leave the client's browser.
-- **XSS & Link Hardening**: External links enforce `rel="noopener noreferrer"`. All user input names are trimmed and capped (`maxLength={60}`).
+### 1. 100-Point Financial Health Scoring Model
+The health score is recalculable in real time and bounded strictly in $[0, 100]$:
 
----
-
-## ♿ Accessibility & UX Best Practices
-
-- **Semantic Landmarks**: Standard `<header>`, `<main>`, `<aside>`, and `<nav>` landmarks.
-- **Accessible Screen-Reader Tables**: Recharts graphs are paired with hidden `<table className="sr-only">` summaries giving visually impaired users full tabular access to data points.
-- **Keyboard Navigation**: Skip-to-content anchor (`#main-content`), focus rings (`focus-visible:ring-2`), and complete keyboard event listeners (`Escape` to close modals, `Tab` trap).
-- **Color Contrast**: Compliant with WCAG 2.1 AA standards on dark backgrounds using carefully selected palette tones (`#0b0d0c` backdrop, `#f0f4f1` primary text, `#c6ff3d` neon accent).
-
----
-
-## ⚡ Performance & Bundle Optimization
-
-Code-splitting with `React.lazy` and manual chunk grouping in `vite.config.ts` reduces the initial bundle size dramatically:
-
-| Asset Chunk | Size (KB) | Gzip (KB) | Load Strategy |
+| Pillar | Weight | Metric Formula | Objective |
 |---|---|---|---|
-| **`index.js` (App Core)** | **53.60 kB** | **14.76 kB** | Initial page load |
-| **`vendor-lucide.js`** | **29.27 kB** | **6.41 kB** | Initial page load |
-| **`vendor-react.js`** | **252.87 kB** | **77.81 kB** | Initial page load |
-| **`recharts.js`** | **392.47 kB** | **106.11 kB** | Lazy loaded on demand |
-| **`WhatIfSimulator.js`** | **24.20 kB** | **5.47 kB** | Lazy loaded on tab switch |
-| **`SmartInsights.js`** | **9.99 kB** | **3.04 kB** | Lazy loaded on tab switch |
-| **`SavingsGoals.js`** | **9.60 kB** | **2.50 kB** | Lazy loaded on tab switch |
-| **`SpendingChart.js`** | **7.93 kB** | **2.46 kB** | Lazy loaded on tab switch |
+| **Budget Adherence** | 30 pts | $30 \times \text{clamp}\left(1 - \frac{\max(0, \text{spent} - \text{pace})}{0.25 \times \text{budget}}\right)$ | Rewards spending within the ideal ₹333/day trajectory. |
+| **Reserve Buffer** | 20 pts | $20 \times \text{clamp}\left(\frac{\text{remaining} - \text{committed}}{\max(1, \text{reserve})}\right)$ | Safeguards the ₹1,500 emergency safety cushion. |
+| **Month-End Outlook** | 25 pts | $25 \times \text{clamp}\left(\frac{\text{projectedDay30Balance}}{0.15 \times \text{budget}}\right)$ | Measures probability of surviving Day 30 in positive balance. |
+| **Savings Progress** | 15 pts | $15 \times \text{clamp}\left(\frac{\text{totalSaved}}{\max(1, \text{totalTarget})}\right)$ | Tracks completion of user-defined savings goals. |
+| **Subscription Cap** | 10 pts | $10 \times \text{clamp}\left(1 - \frac{\text{committed}}{0.20 \times \text{budget}}\right)$ | Prevents fixed auto-renewals from consuming >20% of budget. |
 
-*Result: Core application bootstrap executes in under 200ms on low-end mobile devices.*
+*Disclaimer: Application-generated budgeting indicator for educational purposes; not formal financial advice.*
+
+### 2. Transparent Financial Risk Indicator
+- **High Risk**: Triggered if daily allowance drops to $\le 0$ or predicted Day 30 balance is in deficit ($< ₹0$).
+- **Medium Risk**: Triggered if daily allowance is tight ($< ₹150$/day) or predicted balance breaches the emergency reserve floor.
+- **Low Risk**: Healthy runway with daily allowance $> ₹150$/day and projected balance comfortably above reserve.
 
 ---
 
-## 🧪 Testing Suite & Quality Gates
+## 🔒 Data Persistence & Storage Integrity
 
-The project contains **40 automated tests** across Vitest and React Testing Library:
+- **Versioned LocalStorage (`bbf:v2`)**: Automatically saves state changes with debounce.
+- **Defensive Type Guards**: `isValidFinanceState`, `isValidExpense`, `isValidSubscription` inspect stored JSON before hydration.
+- **Corruption Resilience**: If stored data contains corrupted JSON or invalid fields, the application falls back safely to `DEMO_MONTH_STATE` without runtime crashes.
+- **Import / Export**: Full JSON and CSV export/import supported in Settings with a confirmation dialog.
+- **Demo Data Preservation**: Resetting to Blank or reloading Demo data is guarded with confirmation prompts.
+
+---
+
+## 🧪 Automated Testing & Verification
+
+The test suite runs with **Vitest** and **React Testing Library**:
 
 ```bash
-# Run all unit and integration tests
+# Run complete test suite (46 passing tests)
 npm test
 
-# Generate coverage report
-npm run coverage
-
-# Perform strict TypeScript typecheck
+# Run strict TypeScript typecheck
 npm run typecheck
 
 # Run ESLint validation
 npm run lint
 
-# Format code with Prettier
-npm run format
+# Run production build
+npm run build
 ```
 
-### Test Coverage Highlights
-- **`src/utils/financeCalculations.ts`**: **93.25%** statement coverage, **100%** function coverage.
-- **`src/utils/storage.ts`**: **80.30%** statement coverage, **84.61%** function coverage.
-- **`src/context/financeReducer.ts`**: **100%** action coverage (add/delete expense, subscriptions, goals, simulated commits, resets).
+### Verified Test Results
+```
+ ✓ src/utils/__tests__/storage.test.ts (10 tests)
+ ✓ src/context/__tests__/financeReducer.test.ts (11 tests)
+ ✓ src/utils/__tests__/financeCalculations.test.ts (19 tests)
+ ✓ src/components/__tests__/ExpenseTracker.test.tsx (4 tests)
+ ✓ src/components/__tests__/Simulator.test.tsx (2 tests)
+
+Test Files  5 passed (5)
+Tests       46 passed (46)
+Duration    2.72s
+```
 
 ---
 
@@ -237,7 +206,7 @@ npm install
 # 3. Start development server
 npm run dev
 
-# 4. Build for production
+# 4. Build production bundle
 npm run build
 
 # 5. Preview production build locally
@@ -248,5 +217,4 @@ npm run preview
 
 ## 📄 License
 
-Distributed under the [MIT License](file:///c:/Users/Gopal%20shinde/Music/PROJECTS/fronted%20arena%2011-oct/LICENSE). Built with ❤️ for students making every rupee count.
-$$
+Distributed under the [MIT License](./LICENSE). Built with ❤️ for students making every rupee count.
