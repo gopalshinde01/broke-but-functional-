@@ -9,6 +9,9 @@
 [![Bundle Size](<https://img.shields.io/badge/initial%20bundle-53.6%20kB%20(14.7%20kB%20gzip)-indigo.svg>)](<>)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
+**🌐 Live Demo:** [https://gopalshinde01.github.io/broke-but-functional-/](https://gopalshinde01.github.io/broke-but-functional-/)  
+**💻 Source Repository:** [https://github.com/gopalshinde01/broke-but-functional-](https://github.com/gopalshinde01/broke-but-functional-)
+
 ---
 
 ## 🎯 Executive Overview
